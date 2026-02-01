@@ -48,10 +48,51 @@
                     </div>
                 </div>
 
-                <div class="info-card">
-                    <div class="info-item">
-                        <span class="info-icon">🔒</span>
-                        <p>您的隱私是我們的首要考量，所有影像僅用於實時分析，不會被永久存儲。</p>
+                <!-- Pregnancy Guide Section (New) -->
+                <div class="guide-section">
+                    <div class="section-title">
+                        <h3>孕期每週指南</h3>
+                        <span class="badge">全程陪伴</span>
+                    </div>
+                    
+                    <div class="week-selector">
+                        <button id="prevWeekBtn" class="nav-btn">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </button>
+                        <div class="current-week-display">
+                            <span class="week-label">第 <span id="currentWeekNum">12</span> 週</span>
+                            <span class="trimester-label" id="currentTrimester">第一孕期</span>
+                        </div>
+                        <button id="nextWeekBtn" class="nav-btn">
+                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
+                    </div>
+
+                    <div class="card guide-card">
+                        <div class="guide-content">
+                            <div class="guide-image-placeholder">
+                                <div class="fetus-icon" id="fetusIcon">👶</div>
+                            </div>
+                            <div class="guide-text">
+                                <h4 id="guideTitle">寶寶的變化</h4>
+                                <p id="babyChanges">正在加載數據...</p>
+                                <h4 class="mt-3">媽媽的變化</h4>
+                                <p id="momChanges">正在加載數據...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="quick-tips-grid">
+                        <div class="tip-card">
+                            <span class="tip-icon">🥗</span>
+                            <h5>營養建議</h5>
+                            <p id="nutritionTip">補充葉酸，多吃深色蔬菜</p>
+                        </div>
+                        <div class="tip-card">
+                            <span class="tip-icon">🏃‍♀️</span>
+                            <h5>運動建議</h5>
+                            <p id="exerciseTip">保持適度散步，放鬆心情</p>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -123,6 +164,7 @@
     </div>
 
     <script src="cordova.js"></script>
+    <script src="data.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

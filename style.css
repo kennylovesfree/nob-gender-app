@@ -2,7 +2,7 @@
     --primary-color: #2c3e50;
     --accent-color: #3498db;
     --accent-hover: #2980b9;
-    --bg-color: #f8f9fa;
+    --bg-color: #f0f4f8;
     --card-bg: #ffffff;
     --text-main: #2c3e50;
     --text-secondary: #7f8c8d;
@@ -10,10 +10,11 @@
     --male-color: #5dade2;
     --female-color: #ec7063;
     --success-color: #27ae60;
+    --warning-color: #f39c12;
     --shadow-sm: 0 2px 8px rgba(0,0,0,0.04);
     --shadow-md: 0 8px 24px rgba(0,0,0,0.08);
-    --radius-lg: 16px;
-    --radius-md: 12px;
+    --radius-lg: 20px;
+    --radius-md: 14px;
 }
 
 * {
@@ -42,37 +43,39 @@ body {
 /* Header */
 .app-header {
     background: var(--card-bg);
-    padding: 24px 20px;
+    padding: 20px 20px 16px;
     text-align: center;
     box-shadow: var(--shadow-sm);
     position: sticky;
     top: 0;
     z-index: 100;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
 }
 
 .logo-area {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
     margin-bottom: 4px;
 }
 
 .logo-icon {
     color: var(--accent-color);
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
 }
 
 .app-header h1 {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 700;
     color: var(--text-main);
     letter-spacing: 0.5px;
 }
 
 .header-subtitle {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     color: var(--text-secondary);
     font-weight: 400;
 }
@@ -96,25 +99,24 @@ body {
 }
 
 .card-header {
-    padding: 24px 24px 16px;
-    border-bottom: 1px solid var(--border-color);
+    padding: 20px 24px 12px;
 }
 
 .card-header h2 {
-    font-size: 1.125rem;
+    font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 4px;
 }
 
 .card-header p {
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     color: var(--text-secondary);
 }
 
 /* Upload Area */
 .upload-area {
-    padding: 40px 24px;
-    margin: 24px;
+    padding: 32px 20px;
+    margin: 0 20px 24px;
     border: 2px dashed var(--border-color);
     border-radius: var(--radius-md);
     background: #fafbfc;
@@ -129,43 +131,171 @@ body {
 }
 
 .upload-placeholder .icon-circle {
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     background: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 16px;
+    margin: 0 auto 12px;
     box-shadow: var(--shadow-sm);
     color: var(--accent-color);
 }
 
 .upload-placeholder h3 {
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 500;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .upload-hint {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--text-secondary);
 }
 
-/* Info Card */
-.info-card {
-    padding: 0 8px;
+/* Guide Section */
+.guide-section {
+    margin-top: 12px;
 }
 
-.info-item {
+.section-title {
     display: flex;
-    gap: 12px;
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-    background: rgba(52, 152, 219, 0.08);
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+.section-title h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.badge {
+    font-size: 0.7rem;
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--accent-color);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.week-selector {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--card-bg);
     padding: 12px 16px;
     border-radius: var(--radius-md);
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-btn:active {
+    background: #f0f0f0;
+}
+
+.current-week-display {
+    text-align: center;
+}
+
+.week-label {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-color);
+}
+
+.trimester-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.guide-card {
+    padding: 24px;
+    margin-bottom: 16px;
+}
+
+.guide-content {
+    display: flex;
+    gap: 20px;
+}
+
+.guide-image-placeholder {
+    flex-shrink: 0;
+    width: 60px;
+    height: 60px;
+    background: #fdf2f2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fetus-icon {
+    font-size: 28px;
+}
+
+.guide-text h4 {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.mt-3 { margin-top: 16px; }
+
+.guide-text p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
     line-height: 1.5;
+    text-align: justify;
+}
+
+.quick-tips-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.tip-card {
+    background: var(--card-bg);
+    padding: 16px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.tip-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.tip-card h5 {
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    color: var(--text-main);
+}
+
+.tip-card p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
 }
 
 /* Image Preview */
