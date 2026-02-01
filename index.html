@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; object-src 'none'; media-src 'self' data: content:;">
+    <title>NOB胎儿性别预测</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>NOB胎儿性别预测</h1>
+            <p>上传照片，AI智能分析性别概率</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-content">
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7,10 12,15 17,10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        <h3>点击或拖拽上传图片</h3>
+                        <p>支持 JPG、PNG、GIF 格式</p>
+                        <input type="file" id="fileInput" accept="image/*" hidden>
+                    </div>
+                </div>
+            </div>
+
+            <div class="preview-section" id="previewSection" style="display: none;">
+                <h3>图片预览</h3>
+                <div class="image-preview">
+                    <img id="previewImage" alt="预览图片">
+                    <button class="btn-secondary" id="changeImageBtn">更换图片</button>
+                </div>
+            </div>
+
+            <div class="action-section" id="actionSection" style="display: none;">
+                <button class="btn-primary" id="analyzeBtn">
+                    <span class="btn-text">开始分析</span>
+                    <div class="loading-spinner" style="display: none;"></div>
+                </button>
+            </div>
+
+            <div class="result-section" id="resultSection" style="display: none;">
+                <h3>分析结果</h3>
+                <div class="result-card">
+                    <div class="gender-result">
+                        <div class="gender-item">
+                            <span class="gender-label">男性概率</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill male" id="maleProgress"></div>
+                            </div>
+                            <span class="percentage" id="malePercentage">0%</span>
+                        </div>
+                        <div class="gender-item">
+                            <span class="gender-label">女性概率</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill female" id="femaleProgress"></div>
+                            </div>
+                            <span class="percentage" id="femalePercentage">0%</span>
+                        </div>
+                    </div>
+                    <div class="prediction-result">
+                        <h4>预测结果：<span id="finalPrediction">-</span></h4>
+                        <p class="confidence">置信度：<span id="confidence">-</span></p>
+                    </div>
+                </div>
+                <button class="btn-secondary" id="resetBtn">重新分析</button>
+            </div>
+
+            <div class="error-section" id="errorSection" style="display: none;">
+                <div class="error-card">
+                    <h3>分析失败</h3>
+                    <p id="errorMessage">请稍后重试</p>
+                    <button class="btn-secondary" id="retryBtn">重试</button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 NOB性别预测系统. 仅供娱乐参考.</p>
+        </footer>
+    </div>
+
+    <script src="cordova.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
