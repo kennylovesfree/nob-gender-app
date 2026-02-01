@@ -48,7 +48,7 @@
                     </div>
                 </div>
 
-                <!-- Pregnancy Guide Section (New) -->
+                <!-- Pregnancy Guide Section -->
                 <div class="guide-section">
                     <div class="section-title">
                         <h3>孕期每週指南</h3>
@@ -161,6 +161,45 @@
                 </div>
             </section>
         </main>
+        
+        <!-- AI Chat Floating Action Button -->
+        <button id="aiChatFab" class="ai-chat-fab">
+            <span class="icon">🤖</span>
+            <span class="text">Ask AI</span>
+        </button>
+
+        <!-- AI Chat Window -->
+        <div id="aiChatWindow" class="ai-chat-window" style="display: none;">
+            <div class="chat-header">
+                <div class="chat-title">
+                    <span class="icon">🤖</span>
+                    <div>
+                        <h4>NOB 孕期助手</h4>
+                        <span class="status">在線中</span>
+                    </div>
+                </div>
+                <button id="closeChatBtn" class="close-btn">&times;</button>
+            </div>
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai">
+                    <div class="bubble">
+                        你好！我是你的 AI 孕期助手。
+                        <br>無論是飲食、症狀還是寶寶的發育，都可以問我喔！
+                        <br>（例如：我現在12週，可以喝咖啡嗎？）
+                    </div>
+                    <span class="time">剛剛</span>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="輸入你的問題...">
+                <button id="sendMessageBtn">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
     </div>
 
     <script src="cordova.js"></script>
