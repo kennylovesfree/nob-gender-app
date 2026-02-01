@@ -7,6 +7,10 @@ class GenderPredictor {
         // Pregnancy Guide State
         this.currentWeek = 12; // Default starting week
         this.renderWeekData();
+
+        // AI Chat State
+        this.isChatOpen = false;
+        this.chatMessages = [];
     }
 
     initializeElements() {
@@ -49,6 +53,14 @@ class GenderPredictor {
         this.momChanges = document.getElementById('momChanges');
         this.nutritionTip = document.getElementById('nutritionTip');
         this.exerciseTip = document.getElementById('exerciseTip');
+
+        // AI Chat Elements
+        this.aiChatFab = document.getElementById('aiChatFab');
+        this.aiChatWindow = document.getElementById('aiChatWindow');
+        this.closeChatBtn = document.getElementById('closeChatBtn');
+        this.chatInput = document.getElementById('chatInput');
+        this.sendMessageBtn = document.getElementById('sendMessageBtn');
+        this.chatMessagesContainer = document.getElementById('chatMessages');
     }
 
     bindEvents() {
@@ -75,6 +87,14 @@ class GenderPredictor {
         // Guide Navigation
         this.prevWeekBtn.addEventListener('click', () => this.changeWeek(-1));
         this.nextWeekBtn.addEventListener('click', () => this.changeWeek(1));
+
+        // AI Chat
+        this.aiChatFab.addEventListener('click', () => this.toggleChat(true));
+        this.closeChatBtn.addEventListener('click', () => this.toggleChat(false));
+        this.sendMessageBtn.addEventListener('click', () => this.sendChatMessage());
+        this.chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') this.sendChatMessage();
+        });
     }
 
     // Guide Logic
@@ -113,6 +133,84 @@ class GenderPredictor {
         this.nextWeekBtn.disabled = this.currentWeek === 40;
         this.prevWeekBtn.style.opacity = this.currentWeek === 1 ? 0.3 : 1;
         this.nextWeekBtn.style.opacity = this.currentWeek === 40 ? 0.3 : 1;
+    }
+
+    // AI Chat Logic
+    toggleChat(show) {
+        this.isChatOpen = show;
+        this.aiChatWindow.style.display = show ? 'flex' : 'none';
+        if (show) {
+            this.chatInput.focus();
+            this.scrollToBottom();
+        }
+    }
+
+    sendChatMessage() {
+        const text = this.chatInput.value.trim();
+        if (!text) return;
+
+        // Add User Message
+        this.addMessage(text, 'user');
+        this.chatInput.value = '';
+
+        // Simulate AI Thinking
+        setTimeout(() => {
+            const response = this.generateAIResponse(text);
+            this.addMessage(response, 'ai');
+        }, 800 + Math.random() * 1000);
+    }
+
+    addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+        
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.innerHTML = text.replace(/\n/g, '<br>');
+        
+        const time = document.createElement('span');
+        time.className = 'time';
+        const now = new Date();
+        time.textContent = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+        
+        messageDiv.appendChild(bubble);
+        messageDiv.appendChild(time);
+        
+        this.chatMessagesContainer.appendChild(messageDiv);
+        this.scrollToBottom();
+    }
+
+    scrollToBottom() {
+        this.chatMessagesContainer.scrollTop = this.chatMessagesContainer.scrollHeight;
+    }
+
+    generateAIResponse(input) {
+        // Simple Rule-Based AI Engine
+        // Uses the current week context + regex matching
+        
+        // 1. Check for specific questions
+        for (const category in aiKnowledgeBase) {
+            const topic = aiKnowledgeBase[category];
+            if (Array.isArray(topic.patterns)) { // Safety check
+                for (const pattern of topic.patterns) {
+                    if (pattern.test(input)) {
+                        // Return random response from this category
+                        const responses = topic.responses;
+                        return responses[Math.floor(Math.random() * responses.length)];
+                    }
+                }
+            }
+        }
+
+        // 2. Check if asking about "current week"
+        if (/這週|現在|第.*週/i.test(input)) {
+            const data = pregnancyData.find(d => d.week === this.currentWeek);
+            return `現在是第 ${this.currentWeek} 週。寶寶正在${data.baby} 媽媽可能會覺得${data.mom}`;
+        }
+
+        // 3. Fallback
+        const defaultResponses = aiKnowledgeBase.default;
+        return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
     }
 
     handleFileSelect(e) {
@@ -244,6 +342,9 @@ class GenderPredictor {
         } else {
             guideSection.style.display = 'none';
         }
+        
+        // AI Chat Button visibility (always show unless specific logic needed)
+        // Currently it's fixed so it shows everywhere
         
         // If showing result, trigger animations slightly after display
         if (activeSection === this.resultSection) {
