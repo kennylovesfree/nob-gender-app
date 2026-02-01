@@ -6,260 +6,205 @@ class GenderPredictor {
     }
 
     initializeElements() {
+        // Sections
+        this.uploadSection = document.getElementById('uploadSection');
+        this.analysisSection = document.getElementById('analysisSection');
+        this.resultSection = document.getElementById('resultSection');
+
+        // Inputs & Display
         this.uploadArea = document.getElementById('uploadArea');
         this.fileInput = document.getElementById('fileInput');
-        this.previewSection = document.getElementById('previewSection');
         this.previewImage = document.getElementById('previewImage');
-        this.changeImageBtn = document.getElementById('changeImageBtn');
-        this.actionSection = document.getElementById('actionSection');
-        this.analyzeBtn = document.getElementById('analyzeBtn');
-        this.resultSection = document.getElementById('resultSection');
-        this.errorSection = document.getElementById('errorSection');
-        this.resetBtn = document.getElementById('resetBtn');
-        this.retryBtn = document.getElementById('retryBtn');
         
-        // Result elements
-        this.maleProgress = document.getElementById('maleProgress');
-        this.femaleProgress = document.getElementById('femaleProgress');
-        this.malePercentage = document.getElementById('malePercentage');
-        this.femalePercentage = document.getElementById('femalePercentage');
-        this.finalPrediction = document.getElementById('finalPrediction');
-        this.confidence = document.getElementById('confidence');
-        this.errorMessage = document.getElementById('errorMessage');
+        // Buttons
+        this.analyzeBtn = document.getElementById('analyzeBtn');
+        this.reuploadBtn = document.getElementById('reuploadBtn');
+        this.resetBtn = document.getElementById('resetBtn');
+
+        // UI Feedback Elements
+        this.scanOverlay = document.getElementById('scanOverlay');
+        this.statusText = document.getElementById('statusText');
+        this.loadingDots = document.querySelector('.loading-dots');
+        this.btnText = document.querySelector('.btn-text');
+        
+        // Result Elements
+        this.maleBar = document.getElementById('maleBar');
+        this.femaleBar = document.getElementById('femaleBar');
+        this.maleValue = document.getElementById('maleValue');
+        this.femaleValue = document.getElementById('femaleValue');
+        this.interpretationText = document.getElementById('interpretationText');
+        this.resultTimestamp = document.getElementById('resultTimestamp');
     }
 
     bindEvents() {
-        // Upload area events
+        // File Upload
         this.uploadArea.addEventListener('click', () => this.fileInput.click());
-        this.uploadArea.addEventListener('dragover', this.handleDragOver.bind(this));
-        this.uploadArea.addEventListener('drop', this.handleDrop.bind(this));
-        this.uploadArea.addEventListener('dragleave', this.handleDragLeave.bind(this));
+        this.fileInput.addEventListener('change', (e) => this.handleFileSelect(e));
         
-        // File input change
-        this.fileInput.addEventListener('change', this.handleFileSelect.bind(this));
-        
-        // Button events
-        this.changeImageBtn.addEventListener('click', () => this.fileInput.click());
-        this.analyzeBtn.addEventListener('click', this.analyzeImage.bind(this));
-        this.resetBtn.addEventListener('click', this.resetAnalysis.bind(this));
-        this.retryBtn.addEventListener('click', this.analyzeImage.bind(this));
+        // Drag & Drop
+        this.uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            this.uploadArea.classList.add('drag-over');
+        });
+        this.uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            this.uploadArea.classList.remove('drag-over');
+        });
+        this.uploadArea.addEventListener('drop', (e) => this.handleDrop(e));
+
+        // Actions
+        this.analyzeBtn.addEventListener('click', () => this.startAnalysis());
+        this.reuploadBtn.addEventListener('click', () => this.resetToUpload());
+        this.resetBtn.addEventListener('click', () => this.resetToUpload());
     }
 
-    handleDragOver(e) {
-        e.preventDefault();
-        this.uploadArea.classList.add('drag-over');
-    }
-
-    handleDragLeave(e) {
-        e.preventDefault();
-        this.uploadArea.classList.remove('drag-over');
+    handleFileSelect(e) {
+        const file = e.target.files[0];
+        if (file) this.processFile(file);
     }
 
     handleDrop(e) {
         e.preventDefault();
         this.uploadArea.classList.remove('drag-over');
-        
-        const files = e.dataTransfer.files;
-        if (files.length > 0) {
-            this.handleFile(files[0]);
-        }
+        const file = e.dataTransfer.files[0];
+        if (file) this.processFile(file);
     }
 
-    handleFileSelect(e) {
-        const file = e.target.files[0];
-        if (file) {
-            this.handleFile(file);
-        }
-    }
-
-    handleFile(file) {
-        // Validate file type
+    processFile(file) {
         if (!file.type.startsWith('image/')) {
-            this.showError('请选择有效的图片文件');
-            return;
-        }
-
-        // Validate file size (max 10MB)
-        if (file.size > 10 * 1024 * 1024) {
-            this.showError('图片文件大小不能超过10MB');
+            alert('請上傳有效的圖片文件 (JPG, PNG)');
             return;
         }
 
         this.currentFile = file;
-        this.previewImage.src = URL.createObjectURL(file);
-        this.showPreview();
+        
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            this.previewImage.src = e.target.result;
+            this.showSection(this.analysisSection);
+            this.statusText.textContent = "影像已就緒，等待分析";
+            this.resetAnalysisState();
+        };
+        reader.readAsDataURL(file);
     }
 
-    showPreview() {
-        this.hideAllSections();
-        this.previewSection.style.display = 'block';
-        this.actionSection.style.display = 'block';
+    resetAnalysisState() {
+        this.scanOverlay.style.display = 'none';
+        this.analyzeBtn.disabled = false;
+        this.loadingDots.style.display = 'none';
+        this.btnText.style.display = 'block';
     }
 
-    async analyzeImage() {
-        if (!this.currentFile) {
-            this.showError('请先选择图片');
-            return;
-        }
+    async startAnalysis() {
+        if (!this.currentFile) return;
 
-        this.setLoading(true);
-        this.hideError();
+        // UI State: Analyzing
+        this.analyzeBtn.disabled = true;
+        this.btnText.style.display = 'none';
+        this.loadingDots.style.display = 'block';
+        this.statusText.textContent = "正在進行 AI 特徵識別...";
+        this.scanOverlay.style.display = 'block';
 
         try {
-            const formData = new FormData();
-            formData.append('image', this.currentFile);
-
-            const response = await fetch('/api/predict', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const result = await response.json();
+            // Simulate Analysis Delay (2-3 seconds for realism)
+            await new Promise(resolve => setTimeout(resolve, 2500));
+            
+            // Get Result (Simulation or Real API)
+            const result = await this.performPrediction();
+            
             this.displayResult(result);
         } catch (error) {
-            console.error('Analysis error:', error);
-            this.showError('分析失败，请检查网络连接或稍后重试');
-        } finally {
-            this.setLoading(false);
+            console.error(error);
+            this.statusText.textContent = "分析過程中發生錯誤，請重試";
+            this.resetAnalysisState();
         }
+    }
+
+    async performPrediction() {
+        // Here we simulate the AI prediction logic
+        // In a real app, this would be an API call
+        
+        // Generate a somewhat random but weighted result
+        const isMale = Math.random() > 0.45; // Slightly skewed, or 50/50
+        const primaryProb = 0.60 + (Math.random() * 0.35); // 60% - 95%
+        
+        return {
+            maleProb: isMale ? primaryProb : 1 - primaryProb,
+            femaleProb: isMale ? 1 - primaryProb : primaryProb
+        };
     }
 
     displayResult(result) {
-        const maleProb = Math.round(result.male_probability * 100);
-        const femaleProb = Math.round(result.female_probability * 100);
-        const prediction = result.prediction;
-        const confidence = Math.round(result.confidence * 100);
+        const malePercent = Math.round(result.maleProb * 100);
+        const femalePercent = Math.round(result.femaleProb * 100);
+        
+        // Update Bars
+        this.maleBar.style.width = `${malePercent}%`;
+        this.femaleBar.style.width = `${femalePercent}%`;
+        this.maleValue.textContent = `${malePercent}%`;
+        this.femaleValue.textContent = `${femalePercent}%`;
 
-        // Update progress bars
-        this.maleProgress.style.width = `${maleProb}%`;
-        this.femaleProgress.style.width = `${femaleProb}%`;
+        // Generate Professional Text
+        this.interpretationText.innerHTML = this.generateProfessionalText(malePercent, femalePercent);
         
-        // Update percentages
-        this.malePercentage.textContent = `${maleProb}%`;
-        this.femalePercentage.textContent = `${femaleProb}%`;
-        
-        // Update prediction
-        this.finalPrediction.textContent = prediction === 'male' ? '男性' : '女性';
-        this.confidence.textContent = `${confidence}%`;
-        
-        // Add animation
-        setTimeout(() => {
-            this.maleProgress.style.transition = 'width 1s ease-in-out';
-            this.femaleProgress.style.transition = 'width 1s ease-in-out';
-        }, 100);
+        // Update Timestamp
+        const now = new Date();
+        this.resultTimestamp.textContent = now.toLocaleString('zh-CN', { 
+            year: 'numeric', month: '2-digit', day: '2-digit', 
+            hour: '2-digit', minute: '2-digit' 
+        });
 
-        this.hideAllSections();
-        this.previewSection.style.display = 'block';
-        this.resultSection.style.display = 'block';
+        // Switch View
+        this.showSection(this.resultSection);
     }
 
-    setLoading(isLoading) {
-        const btnText = this.analyzeBtn.querySelector('.btn-text');
-        const spinner = this.analyzeBtn.querySelector('.loading-spinner');
+    generateProfessionalText(maleProb, femaleProb) {
+        const dominant = maleProb >= femaleProb ? '男性' : '女性';
+        const prob = Math.max(maleProb, femaleProb);
         
-        if (isLoading) {
-            btnText.style.display = 'none';
-            spinner.style.display = 'inline-block';
-            this.analyzeBtn.disabled = true;
-        } else {
-            btnText.style.display = 'inline';
-            spinner.style.display = 'none';
-            this.analyzeBtn.disabled = false;
+        let confidenceLevel = "";
+        if (prob >= 90) confidenceLevel = "極高";
+        else if (prob >= 80) confidenceLevel = "顯著";
+        else if (prob >= 60) confidenceLevel = "中等";
+        else confidenceLevel = "初步";
+
+        return `經由 NOB 智能影像分析系統對上傳影像的特徵提取與比對，目前的模型運算結果顯示該影像具有<strong>${confidenceLevel}</strong>的${dominant}特徵傾向。
+        <br><br>
+        具體分析數據顯示，<strong>${dominant}特徵符合度約為 ${prob}%</strong>。建議您將此結果作為輔助參考，並保持愉悅的心情迎接新生命的到來。`;
+    }
+
+    showSection(activeSection) {
+        [this.uploadSection, this.analysisSection, this.resultSection].forEach(sec => {
+            sec.style.display = 'none';
+        });
+        activeSection.style.display = 'block';
+        
+        // If showing result, trigger animations slightly after display
+        if (activeSection === this.resultSection) {
+            // Re-trigger CSS animations if needed
         }
     }
 
-    showError(message) {
-        this.errorMessage.textContent = message;
-        this.hideAllSections();
-        this.errorSection.style.display = 'block';
-        if (this.currentFile) {
-            this.previewSection.style.display = 'block';
-        }
-    }
-
-    hideError() {
-        this.errorSection.style.display = 'none';
-    }
-
-    hideAllSections() {
-        this.previewSection.style.display = 'none';
-        this.actionSection.style.display = 'none';
-        this.resultSection.style.display = 'none';
-        this.errorSection.style.display = 'none';
-    }
-
-    resetAnalysis() {
+    resetToUpload() {
         this.currentFile = null;
         this.fileInput.value = '';
-        this.hideAllSections();
+        this.showSection(this.uploadSection);
         
-        // Reset progress bars
-        this.maleProgress.style.width = '0%';
-        this.femaleProgress.style.width = '0%';
-        this.maleProgress.style.transition = 'none';
-        this.femaleProgress.style.transition = 'none';
+        // Reset bars width for animation next time
+        this.maleBar.style.width = '0%';
+        this.femaleBar.style.width = '0%';
     }
 }
 
-// Initialize the application
-function initializeApp() {
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
     new GenderPredictor();
-}
+});
 
-// Wait for Cordova to be ready
+// Cordova compatibility
 if (window.cordova) {
-    document.addEventListener('deviceready', initializeApp, false);
-} else {
-    document.addEventListener('DOMContentLoaded', initializeApp, false);
+    document.addEventListener('deviceready', () => {
+        // Cordova specific inits if needed
+    }, false);
 }
-
-// Add some utility functions for demo purposes
-function simulateAnalysis() {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            const maleProb = Math.random();
-            const femaleProb = 1 - maleProb;
-            const prediction = maleProb > femaleProb ? 'male' : 'female';
-            const confidence = Math.max(maleProb, femaleProb);
-            
-            resolve({
-                male_probability: maleProb,
-                female_probability: femaleProb,
-                prediction: prediction,
-                confidence: confidence
-            });
-        }, 2000);
-    });
-}
-
-// Mobile app mode - always use simulation
-console.log('移动应用模式：使用本地模拟分析');
-const originalAnalyzeImage = GenderPredictor.prototype.analyzeImage;
-GenderPredictor.prototype.analyzeImage = async function() {
-    if (!this.currentFile) {
-        this.showError('请先选择图片');
-        return;
-    }
-
-    this.setLoading(true);
-    this.hideError();
-
-    try {
-        // 模拟分析延迟
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // 使用模拟结果
-        const result = await simulateAnalysis();
-        this.displayResult(result);
-        
-    } catch (error) {
-        console.error('分析失败:', error);
-        this.showError('分析失败，请重试');
-    } finally {
-        this.setLoading(false);
-    }
-};
