@@ -3,6 +3,10 @@ class GenderPredictor {
         this.initializeElements();
         this.bindEvents();
         this.currentFile = null;
+        
+        // Pregnancy Guide State
+        this.currentWeek = 12; // Default starting week
+        this.renderWeekData();
     }
 
     initializeElements() {
@@ -34,6 +38,17 @@ class GenderPredictor {
         this.femaleValue = document.getElementById('femaleValue');
         this.interpretationText = document.getElementById('interpretationText');
         this.resultTimestamp = document.getElementById('resultTimestamp');
+
+        // Guide Elements
+        this.prevWeekBtn = document.getElementById('prevWeekBtn');
+        this.nextWeekBtn = document.getElementById('nextWeekBtn');
+        this.currentWeekNum = document.getElementById('currentWeekNum');
+        this.currentTrimester = document.getElementById('currentTrimester');
+        this.guideTitle = document.getElementById('guideTitle');
+        this.babyChanges = document.getElementById('babyChanges');
+        this.momChanges = document.getElementById('momChanges');
+        this.nutritionTip = document.getElementById('nutritionTip');
+        this.exerciseTip = document.getElementById('exerciseTip');
     }
 
     bindEvents() {
@@ -56,6 +71,48 @@ class GenderPredictor {
         this.analyzeBtn.addEventListener('click', () => this.startAnalysis());
         this.reuploadBtn.addEventListener('click', () => this.resetToUpload());
         this.resetBtn.addEventListener('click', () => this.resetToUpload());
+
+        // Guide Navigation
+        this.prevWeekBtn.addEventListener('click', () => this.changeWeek(-1));
+        this.nextWeekBtn.addEventListener('click', () => this.changeWeek(1));
+    }
+
+    // Guide Logic
+    changeWeek(delta) {
+        let newWeek = this.currentWeek + delta;
+        if (newWeek < 1) newWeek = 1;
+        if (newWeek > 40) newWeek = 40;
+        
+        this.currentWeek = newWeek;
+        this.renderWeekData();
+    }
+
+    renderWeekData() {
+        const data = pregnancyData.find(d => d.week === this.currentWeek);
+        if (!data) return;
+
+        this.currentWeekNum.textContent = data.week;
+        this.currentTrimester.textContent = data.trimester;
+        
+        // Animate text change
+        this.babyChanges.style.opacity = 0;
+        this.momChanges.style.opacity = 0;
+        
+        setTimeout(() => {
+            this.babyChanges.textContent = data.baby;
+            this.momChanges.textContent = data.mom;
+            this.nutritionTip.textContent = data.nutrition;
+            this.exerciseTip.textContent = data.exercise;
+            
+            this.babyChanges.style.opacity = 1;
+            this.momChanges.style.opacity = 1;
+        }, 200);
+
+        // Button state
+        this.prevWeekBtn.disabled = this.currentWeek === 1;
+        this.nextWeekBtn.disabled = this.currentWeek === 40;
+        this.prevWeekBtn.style.opacity = this.currentWeek === 1 ? 0.3 : 1;
+        this.nextWeekBtn.style.opacity = this.currentWeek === 40 ? 0.3 : 1;
     }
 
     handleFileSelect(e) {
@@ -179,6 +236,14 @@ class GenderPredictor {
             sec.style.display = 'none';
         });
         activeSection.style.display = 'block';
+        
+        // Show guide only in upload section
+        const guideSection = document.querySelector('.guide-section');
+        if (activeSection === this.uploadSection) {
+            guideSection.style.display = 'block';
+        } else {
+            guideSection.style.display = 'none';
+        }
         
         // If showing result, trigger animations slightly after display
         if (activeSection === this.resultSection) {
